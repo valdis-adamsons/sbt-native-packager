@@ -1,0 +1,4 @@
+# Run the zip packaging.
+> show makeEtcDefault
+$ exists target/universal/tmp/etc/default/simple-test
+> check
