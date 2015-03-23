@@ -57,14 +57,13 @@ object JavaServerAppPackaging extends AutoPlugin {
       (name, install, logsDir) => LinuxSymlink(install + "/" + name + "/logs", logsDir + "/" + name)
     },
     // === etc config mapping ===
-    bashScriptConfigLocation := Some(JavaAppPackaging.appIniLocation),
     bashScriptEnvConfigLocation := Some("/etc/default/" + (packageName in Linux).value),
     linuxEtcDefaultTemplate <<= sourceDirectory map { dir =>
       val overrideScript = dir / "templates" / ETC_DEFAULT
       if (overrideScript.exists) overrideScript.toURI.toURL
       else etcDefaultTemplateSource
     },
-    makeEtcDefault <<= (packageName in Linux, target in Universal, linuxEtcDefaultTemplate, linuxScriptReplacements, javaOptions in Linux)
+    makeEtcDefault <<= (packageName in Linux, target in Universal, linuxEtcDefaultTemplate, linuxScriptReplacements)
       map makeEtcDefaultScript,
     linuxPackageMappings <++= (makeEtcDefault, bashScriptEnvConfigLocation) map { (conf, envLocation) =>
       val mapping = for (
@@ -272,18 +271,14 @@ object JavaServerAppPackaging extends AutoPlugin {
    * @param tmpDir to store the resulting file in (e.g. target in Universal)
    * @param source of etc-default script
    * @param replacements for placeholders in etc-default script
-   * @param javaOptions that get appended to the etc-default script
    *
    * @return Some(file: File)
    */
-  protected def makeEtcDefaultScript(name: String, tmpDir: File, source: java.net.URL,
-    replacements: Seq[(String, String)], javaOptions: Seq[String]): Option[File] = {
+  protected def makeEtcDefaultScript(
+    name: String, tmpDir: File, source: java.net.URL, replacements: Seq[(String, String)]): Option[File] = {
     val scriptBits = TemplateWriter.generateScript(source, replacements)
     val script = tmpDir / "tmp" / "etc" / "default" / name
     IO.write(script, scriptBits)
-    if (javaOptions.nonEmpty) {
-      IO.writeLines(script, "# java options from build" +: javaOptions, append = true)
-    }
     Some(script)
   }
 

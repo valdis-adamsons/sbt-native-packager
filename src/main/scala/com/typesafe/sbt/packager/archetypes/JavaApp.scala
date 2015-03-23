@@ -79,7 +79,7 @@ object JavaAppPackaging extends AutoPlugin with JavaAppStartScript {
       bashScriptConfigLocation.value.collect {
         case location if options.nonEmpty =>
           val configFile = dir / "tmp" / "conf" / "application.ini"
-          IO.writeLines(configFile, options)
+          IO.writeLines(configFile, "# options from build" +: options)
           val filteredMappings = universalMappings.filter {
             case (file, path) => path != appIniLocation
           }
@@ -152,7 +152,7 @@ object JavaAppPackaging extends AutoPlugin with JavaAppStartScript {
       artifactClassifier.filterNot(_.isEmpty).map("-" + _).getOrElse("") +
       ".jar"
 
-  // Determines a nicer filename for an attributed jar file, using the 
+  // Determines a nicer filename for an attributed jar file, using the
   // ivy metadata if available.
   private def getJarFullFilename(dep: Attributed[File]): String = {
     val filename: Option[String] = for {
@@ -315,4 +315,3 @@ trait JavaAppStartScript {
     }
 
 }
-
