@@ -72,7 +72,7 @@ Jvm options can be added via different mechanisms. It depends on your use case w
 The available options are
 
 - Adding via ``bashScriptExtraDefines`` and ``batScriptExtraDefines``
-- Providing a ``jvmopts`` (JavaApp) or ``etc-default`` (JavaServer) file
+- Providing a ``application.ini`` (JavaApp) or ``etc-default`` (JavaServer) file
 - Set ``javaOptions in Universal`` (JavaApp) or ``javaOptions in Linux`` (JavaServer, linux only)
 
 .. raw:: html
@@ -82,7 +82,7 @@ The available options are
     the path in <strong>bashScriptConfigLocation</strong> should either 
     <ul>
     <li>be <strong>absolute</strong> (e.g. <em>/etc/etc-default/my-config</em>) or</li> 
-    <li>starting with <em>${app_home}/../</em> (e.g. <em>${app_home}/../conf/jvmopts</em>)</li>
+    <li>starting with <em>${app_home}/../</em> (e.g. <em>${app_home}/../conf/application.ini</em>)</li>
     </ul>
   </div>
 
@@ -101,13 +101,13 @@ For a bash script this could look like this.
      
      // or more. -X options don't need to be prefixed with -J
      bashScriptExtraDefines ++= Seq(
-        "-Xms1024m",
-        "-Xmx2048m",
+        """addJava "-Xms1024m"""",
+        """addJava "-Xmx2048m""""
      )
      
 For information take a look at the :doc:` customize section for java apps </archetypes/java_app/customize>`
 
-File - jvmopts or etc-default
+File - application.ini or etc-default
 -----------------------------------
 
 Another approach would be to provide a file that is read by the bash script during execution.
@@ -115,12 +115,12 @@ Another approach would be to provide a file that is read by the bash script duri
 Java App
 ~~~~~~~~
 
-Create a file ``src/universal/conf/jvmopts`` (gets automatically added to the package mappings)
+Create a file ``src/universal/conf/application.ini`` (gets automatically added to the package mappings)
 and add this to your ``build.sbt`` inject the config location into the bashscript.
 
 .. code-block:: scala
     
-    bashScriptConfigLocation := Some("${app_home}/../conf/jvmopts")
+    bashScriptConfigLocation := Some("${app_home}/../conf/application.ini")
     
 
 Java Server
@@ -140,9 +140,9 @@ are more specific and will thus override the any previous settings (if allowed).
 javaOpts  Scope      bashScriptConfigLocation  Archetype   mappings  comment
 ========  =========  ========================  ==========  ========  =======
 Nil       Universal  None                      JavaApp               No jvm options
-Nil       Universal  Some(jvmoptsLocation)     JavaApp               User provides the jvmopts file in ``src/universal/conf/jvmopts``
-opts      Universal  Some(_)                   JavaApp     added     creates ``jvmopts`` but leaves ``bashScriptConfigLocation`` unchanged
-opts      Universal  None                      JavaApp     added     creates ``jvmopts`` and sets ``bashScriptConfigLocation``. If ``src/universal/conf/jvmopts`` is present it will be overridden
+Nil       Universal  Some(appIniLocation)      JavaApp               User provides the application.ini file in ``src/universal/conf/application.ini``
+opts      Universal  Some(_)                   JavaApp     added     creates ``application.ini`` but leaves ``bashScriptConfigLocation`` unchanged
+opts      Universal  None                      JavaApp     added     creates ``application.ini`` and sets ``bashScriptConfigLocation``. If ``src/universal/conf/application.ini`` is present it will be overridden
 Nil       Linux      None                      JavaServer  added     creates ``etc-default`` and sets ``bashScriptConfigLocation``
 opts      Linux      None                      JavaServer  added     creates ``etc-default``, appends ``javaOptions in Linux`` and sets ``bashScriptConfigLocation``
 opts      Linux      Some(_)                   JavaServer  added     creates ``etc-default``, appends ``javaOptions in Linux`` and overrides ``bashScriptConfigLocation``
